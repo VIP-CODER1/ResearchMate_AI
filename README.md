@@ -1,165 +1,125 @@
-# 📚 Smart Assistant for Research Summarization
+# Smart Assistant for Research Summarization
 
-A smart assistant that enables researchers to:
-
-* Upload PDF/TXT documents
-* Get concise summaries
-* Ask intelligent questions
-* Test their understanding with challenge-based logic questions
-
-Powered by **FastAPI**, **React**, **Google Gemini API**, and **FAISS**.
+Modern FastAPI + React assistant for quickly ingesting research PDFs/TXT, generating concise summaries, answering questions with citations, and issuing challenge questions to test understanding. Runs locally with Gemini 1.5 Flash and FAISS-backed retrieval.
 
 ---
 
-## 📁 Project Structure
-
-<!-- ![Smart Assistant Screenshot](structure.png) -->
+## Project Structure
 
 ```
-smart-assistant/
-│
+Smart-Assistant-for-Research-Summarization/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py                # FastAPI app with API endpoints
-│   │   ├── document_processor.py  # PDF/TXT extraction and summarization
-│   │   ├── question_answerer.py   # Q&A and justification logic
-│   │   ├── question_generator.py  # Generates challenge questions
-│   │   ├── answer_evaluator.py    # Evaluates user answers
+│   │   ├── main.py                # FastAPI entry + routes
+│   │   ├── document_processor.py  # PDF/TXT parsing + summarization prompt
+│   │   ├── question_answerer.py   # Q&A over FAISS + Gemini
+│   │   ├── question_generator.py  # Challenge question generation
+│   │   ├── answer_evaluator.py    # Challenge grading
 │   │   └── models/
-│   │       ├── document.py        # Data models for documents
-│   │       └── context.py         # In-memory context manager
-│   ├── requirements.txt           # Python dependencies
-│   └── .env                       # API keys and environment variables
-│
-├── frontend/
-│   ├── public/
-│   │   ├── index.html             # HTML template
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── FileUpload.js
-│   │   │   ├── SummaryDisplay.js
-│   │   │   ├── AskAnything.js
-│   │   │   ├── ChallengeMe.js
-│   │   │   └── HistoryDisplay.js
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   └── axios.js               # Axios API config
-│   ├── package.json               # Node dependencies
-│   └── tailwind.config.js         # Tailwind CSS config
+│   │       ├── context.py         # In-memory context store
+│   │       └── document.py
+│   ├── requirements.txt
+│   └── .env                       # GOOGLE_API_KEY
+└── client/
+    ├── src/
+    │   ├── App.js
+    │   ├── index.css
+    │   ├── axios.js               # Backend base URL (localhost:8000)
+    │   └── components/
+    │       ├── FileUpload.js
+    │       ├── SummaryDisplay.js
+    │       ├── AskAnything.js
+    │       ├── ChallengeMe.js
+    │       └── HistoryDisplay.js
+    ├── public/
+    └── package.json
 ```
 
 ---
 
-## 🧰 Installation & Setup
+## Prerequisites
 
-### 🔧 Backend
+- Python 3.12 (Windows tested)
+- Node.js 18+ and npm
+- Google Gemini API key (Generative Language)
+- Optional: shorter path on Windows (e.g., `C:\sa\project`) to avoid long-path issues during pip installs.
 
-```bash
-cd backend
-python -m venv venv_name
-.\venv_name\Scripts\activate   # For Windows
-pip install -r requirements.txt
+---
+
+## Backend Setup (FastAPI)
+
+```powershell
+cd C:\sa\project\backend   # or your checkout path
+py -3.12 -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+./.venv/Scripts/Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-> 💡 Create a `.env` file and add your Gemini API key:
+Create `backend/.env` with your Gemini key:
 
 ```
 GOOGLE_API_KEY=your_google_api_key
 ```
 
-### 💻 Frontend
+Run the API:
 
-```bash
-cd frontend
-npm install
-if npm install not work use:-
-npm install --legacy-peer-deps
-```
-
----
-
-## ▶️ Running the Project
-
-### Start Backend
-
-```bash
+```powershell
+./.venv/Scripts/Activate.ps1
 python -m app.main
+# API: http://localhost:8000
 ```
 
-Runs on [http://localhost:8000](http://localhost:8000)
+---
 
-### Start Frontend
+## Frontend Setup (React)
 
-```bash
+```powershell
+cd C:\sa\project\client   # or your checkout path
+npm install
 npm start
+# UI: http://localhost:3000
 ```
 
-Runs on [http://localhost:3000](http://localhost:3000) or [http://localhost:5000](http://localhost:5000)
+If your backend URL differs, update `client/src/axios.js` `baseURL` accordingly.
 
 ---
 
-## 💡 Features
+## Key Features
 
-### ✅ Q\&A Chatbot
-
-Ask any question about the uploaded research paper. The system responds with an answer and a justification, using vector search and Gemini model.
-
-### 🎯 Challenge Mode
-
-Tests your understanding by asking three logic-based questions. You provide answers, and the model evaluates them with justifications.
+- Upload PDF/TXT, parse text, and generate a 150-word summary via Gemini.
+- Ask-anything Q&A grounded in FAISS retrieval over the uploaded document.
+- Challenge mode: auto-generated logic questions and grading of your answers.
+- Session history preserved client-side for quick recall.
+- Modern neon/glass UI with drag-and-drop upload, ask bar, and status cards.
 
 ---
 
-## 🔄 Data Flow Overview
+## API Reference
 
-### 1. User Interaction (Frontend)
+- `POST /upload` — multipart file (`pdf` or `txt`); returns `{ text, summary }`.
+- `POST /ask` — JSON `{ "question": "..." }`; returns `{ question, answer, justification }`. Requires prior upload.
+- `GET /challenge` — returns `[question, question, question]`. Requires prior upload.
+- `POST /evaluate` — JSON `{ "question": "...", "user_answer": "..." }`; returns evaluation + justification. Requires prior upload.
+- `GET /` — health check.
 
-* React app initialized at `/`.
-* `FileUpload.js` allows user to upload PDF/TXT.
-
-### 2. File Upload (Frontend → Backend)
-
-* POST to `/upload`
-* File processed in `document_processor.py` → text & summary generated.
-* Backend response: `{ text, summary }`
-
-### 3. Summary Display (Frontend)
-
-* Summary shown via `SummaryDisplay.js`.
-* User can toggle to:
-
-  * Q\&A mode (`AskAnything.js`)
-  * Challenge mode (`ChallengeMe.js`)
-
-### 4. Ask Questions (Frontend → Backend)
-
-* POST to `/ask` with `{ question }`
-* `question_answerer.py`:
-
-  * Splits document into chunks
-  * Uses FAISS + HuggingFaceEmbeddings
-  * Builds prompt
-  * Calls Gemini API
-* Returns: `{ question, answer, justification }`
-
-### 5. Display Response (Frontend)
-
-* Answer displayed along with justification
-* Stored in session history using `ContextManager`
-* Rendered using `HistoryDisplay.js`
-
-### 6. Challenge Me Mode
-
-* GET `/challenge` returns 3 logic questions
-* User answers sent to `/evaluate`
-* Evaluated using `answer_evaluator.py`
+All endpoints run at `http://localhost:8000` by default and are CORS-allowed for `http://localhost:3000`.
 
 ---
 
-## 🔌 Technologies Used
+## Troubleshooting
 
-* **Frontend:** React, CSS, Axios
-* **Backend:** FastAPI, LangChain, Google Generative AI (Gemini)
-* **Embedding & Retrieval:** HuggingFace (MiniLM), FAISS
-* **Data Flow:** JSON over HTTP API
+- **Windows long paths**: Place the repo in a short path (e.g., `C:\sa\project`) before installing Python deps.
+- **Missing API key**: Ensure `GOOGLE_API_KEY` is set in `backend/.env` and restart the backend.
+- **Port conflicts**: Change the `uvicorn` port in `app.main` and update `client/src/axios.js`.
+- **GPU not required**: Torch CPU wheels are used by default.
+
+---
+
+## Development Notes
+
+- Target Python 3.12 to avoid wheel/build issues on Windows.
+- The summarizer truncates input to ~10k characters to stay within Gemini prompt limits.
+- FAISS index and context are in-memory; restart resets state.
 
