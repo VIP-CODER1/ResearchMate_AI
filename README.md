@@ -1,20 +1,39 @@
-# Smart Assistant for Research Summarization
+# 🚀 Smart Assistant for Research Summarization
 
-Modern FastAPI + React assistant for quickly ingesting research PDFs/TXT, generating concise summaries, answering questions with citations, and issuing challenge questions to test understanding. Runs locally with Gemini 1.5 Flash and FAISS-backed retrieval.
+An intelligent **FastAPI + React** platform that ingests research PDFs/TXT, generates concise summaries, answers questions with source-grounded justifications, and tests your understanding with AI-generated challenge questions — powered by **Gemini 1.5 Flash + FAISS vector retrieval**.
 
 ---
 
-## Project Structure
+## ✨ Key Features
+
+- 📄 **Research Paper Summarization**  
+  Upload PDF/TXT files to extract text and generate a crisp 150-word summary.
+
+- 🤖 **AI Q&A Chatbot**  
+  Ask any question about the uploaded document; responses use FAISS retrieval + Gemini for accuracy.
+
+- 🧠 **Challenge Mode**  
+  Automatically generates 3 logic questions and evaluates your answers with detailed justifications.
+
+- ⚡ **FAISS + MiniLM Embeddings**  
+  Fast, accurate semantic search over document chunks.
+
+- 🎨 **Modern React UI**  
+  Smooth neon/glass UI with drag-and-drop upload, history tracking, and real-time responses.
+
+---
+
+## 📁 Project Structure
 
 ```
 Smart-Assistant-for-Research-Summarization/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py                # FastAPI entry + routes
-│   │   ├── document_processor.py  # PDF/TXT parsing + summarization prompt
-│   │   ├── question_answerer.py   # Q&A over FAISS + Gemini
+│   │   ├── document_processor.py  # Parsing + summary creation
+│   │   ├── question_answerer.py   # Q&A using FAISS + Gemini
 │   │   ├── question_generator.py  # Challenge question generation
-│   │   ├── answer_evaluator.py    # Challenge grading
+│   │   ├── answer_evaluator.py    # Challenge evaluation logic
 │   │   └── models/
 │   │       ├── context.py         # In-memory context store
 │   │       └── document.py
@@ -24,46 +43,46 @@ Smart-Assistant-for-Research-Summarization/
     ├── src/
     │   ├── App.js
     │   ├── index.css
-    │   ├── axios.js               # Backend base URL (localhost:8000)
+    │   ├── axios.js               # Backend base URL
     │   └── components/
     │       ├── FileUpload.js
     │       ├── SummaryDisplay.js
     │       ├── AskAnything.js
     │       ├── ChallengeMe.js
     │       └── HistoryDisplay.js
-    ├── public/
     └── package.json
 ```
 
 ---
 
-## Prerequisites
+## 🛠️ Prerequisites
 
-- Python 3.12 (Windows tested)
-- Node.js 18+ and npm
-- Google Gemini API key (Generative Language)
-- Optional: shorter path on Windows (e.g., `C:\sa\project`) to avoid long-path issues during pip installs.
+- **Python 3.12**  
+- **Node.js 18+**
+- **Google Gemini API key**
+- Optional: keep repo in a short path (e.g., `C:\sa\project`) to avoid Windows long-path issues.
 
 ---
 
-## Backend Setup (FastAPI)
+## ⚙️ Backend Setup (FastAPI)
 
 ```powershell
-cd C:\sa\project\backend   # or your checkout path
+cd backend
 py -3.12 -m venv .venv
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ./.venv/Scripts/Activate.ps1
+
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-Create `backend/.env` with your Gemini key:
+Create `backend/.env`:
 
 ```
 GOOGLE_API_KEY=your_google_api_key
 ```
 
-Run the API:
+Run backend:
 
 ```powershell
 ./.venv/Scripts/Activate.ps1
@@ -73,53 +92,64 @@ python -m app.main
 
 ---
 
-## Frontend Setup (React)
+## 🎨 Frontend Setup (React)
 
 ```powershell
-cd C:\sa\project\client   # or your checkout path
+cd client
 npm install
 npm start
 # UI: http://localhost:3000
 ```
 
-If your backend URL differs, update `client/src/axios.js` `baseURL` accordingly.
+If backend URL differs, update:
+
+```
+client/src/axios.js
+```
 
 ---
 
-## Key Features
+## 🔌 API Endpoints
 
-- Upload PDF/TXT, parse text, and generate a 150-word summary via Gemini.
-- Ask-anything Q&A grounded in FAISS retrieval over the uploaded document.
-- Challenge mode: auto-generated logic questions and grading of your answers.
-- Session history preserved client-side for quick recall.
-- Modern neon/glass UI with drag-and-drop upload, ask bar, and status cards.
-
----
-
-## API Reference
-
-- `POST /upload` — multipart file (`pdf` or `txt`); returns `{ text, summary }`.
-- `POST /ask` — JSON `{ "question": "..." }`; returns `{ question, answer, justification }`. Requires prior upload.
-- `GET /challenge` — returns `[question, question, question]`. Requires prior upload.
-- `POST /evaluate` — JSON `{ "question": "...", "user_answer": "..." }`; returns evaluation + justification. Requires prior upload.
-- `GET /` — health check.
-
-All endpoints run at `http://localhost:8000` by default and are CORS-allowed for `http://localhost:3000`.
+| Method | Endpoint       | Description |
+|--------|----------------|-------------|
+| POST   | `/upload`      | Upload PDF/TXT → returns `{ text, summary }` |
+| POST   | `/ask`         | Ask a question → returns `{ question, answer, justification }` |
+| GET    | `/challenge`   | Generate 3 logic questions |
+| POST   | `/evaluate`    | Evaluate user answer → returns score + justification |
+| GET    | `/`            | Health check |
 
 ---
 
-## Troubleshooting
+## 🧩 How It Works (Data Flow)
 
-- **Windows long paths**: Place the repo in a short path (e.g., `C:\sa\project`) before installing Python deps.
-- **Missing API key**: Ensure `GOOGLE_API_KEY` is set in `backend/.env` and restart the backend.
-- **Port conflicts**: Change the `uvicorn` port in `app.main` and update `client/src/axios.js`.
-- **GPU not required**: Torch CPU wheels are used by default.
+1. **User uploads file** → text extracted → summary generated  
+2. **Document is chunked** → embedded using MiniLM → stored in FAISS  
+3. **User asks a question** → relevant chunks retrieved  
+4. **Gemini 1.5 Flash** answers the question + provides justification  
+5. **Challenge mode** generates logic Qs and evaluates responses  
+6. **Client UI** stores history using local context/session
 
 ---
 
-## Development Notes
+## 🛠️ Troubleshooting
 
-- Target Python 3.12 to avoid wheel/build issues on Windows.
-- The summarizer truncates input to ~10k characters to stay within Gemini prompt limits.
-- FAISS index and context are in-memory; restart resets state.
+- **Long path error (Windows):** move repo to `C:\sa\project`  
+- **Missing API key:** ensure `.env` exists and backend restarted  
+- **Port conflicts:** edit `uvicorn.run()` in `main.py` and update `axios.js`  
+- **No GPU needed:** CPU FAISS + MiniLM is used
 
+---
+
+## 🧾 Development Notes
+
+- Uses Python 3.12 for smooth dependency support on Windows  
+- Summaries are capped at ~10k characters due to Gemini limits  
+- FAISS index and session context are in-memory  
+- Restarting backend resets state
+
+---
+
+## ⭐ Final Thoughts
+
+This project combines **AI reasoning**, **retrieval**, and **modern UI** to create a full research assistant experience — ideal for academic exploration, paper review, or learning.
