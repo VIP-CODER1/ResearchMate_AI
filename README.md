@@ -2,6 +2,8 @@
 
 An intelligent **FastAPI + React** platform that ingests research PDFs/TXT, generates concise summaries, answers questions with source-grounded justifications, and tests your understanding with AI-generated challenge questions — powered by **Gemini 1.5 Flash + FAISS vector retrieval**.
 
+<img width="1874" height="825" alt="image" src="https://github.com/user-attachments/assets/6d62390f-cfbb-4657-8e4a-68bb8f5b724a" />
+
 ---
 
 ## ✨ Key Features
