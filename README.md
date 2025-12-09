@@ -86,9 +86,8 @@ GOOGLE_API_KEY=your_google_api_key
 
 Run backend:
 
-cd C:\RAI\backend
-.\venv\Scripts\Activate.ps1
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+cd C:\RAI\backend; .\venv\Scripts\Activate.ps1; python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
 ```
 
 ---
