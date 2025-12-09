@@ -1,7 +1,6 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from app.models.context import ContextManager
 import os
 from dotenv import load_dotenv
@@ -10,8 +9,8 @@ load_dotenv()
 
 try:
     llm = ChatGoogleGenerativeAI(model="models/gemini-flash-latest", google_api_key=os.getenv("GOOGLE_API_KEY"))
-    # Use local HuggingFace embeddings instead of Google embeddings to avoid quota issues
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    # Use Google embeddings (API-based, low memory footprint)
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=os.getenv("GOOGLE_API_KEY"))
 
 except Exception as e:
     raise Exception(f"Failed to initialize models: {str(e)}")
