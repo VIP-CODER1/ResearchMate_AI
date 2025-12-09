@@ -103,6 +103,10 @@ npm start
 # UI: http://localhost:3000
 ```
 
+cd C:\RAI\backend
+.\venv\Scripts\Activate.ps1
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
 If backend URL differs, update:
 
 ```
