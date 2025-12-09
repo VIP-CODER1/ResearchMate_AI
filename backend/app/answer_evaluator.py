@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 try:
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=os.getenv("GOOGLE_API_KEY"))
+    llm = ChatGoogleGenerativeAI(model="models/gemini-flash-latest", google_api_key=os.getenv("GOOGLE_API_KEY"))
     model = SentenceTransformer("all-MiniLM-L6-v2")
 except Exception as e:
     raise Exception(f"Failed to initialize models: {str(e)}")
